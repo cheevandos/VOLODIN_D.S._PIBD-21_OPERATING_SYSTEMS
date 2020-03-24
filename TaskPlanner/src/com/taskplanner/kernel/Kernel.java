@@ -1,44 +1,49 @@
 package com.taskplanner.kernel;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Kernel {
 	
 	private int quant;
+	private int progress;
 
-	private ArrayDeque<ProcessModel> processes;
+	private ArrayList<ProcessModel> processes;
+	private ArrayDeque<ThreadModel> threads;
 	
 	public Kernel() {
-		processes = new ArrayDeque<ProcessModel>();
+		processes = new ArrayList<ProcessModel>();
+		threads = new ArrayDeque<ThreadModel>();
+		progress = 0;
 		quant = 15;
 		Random rnd = new Random();
 		int processesNumber = rnd.nextInt(10) + 1;
 		for (int i = 0; i < processesNumber; i++) {
 			ProcessModel process = new ProcessModel(i);
-			processes.addLast(process);
+			processes.add(process);
+			threads.addAll(process.getThreads());
 		}
 	}
 	
 	public void start() {
-		while (!processes.isEmpty()) {
-			ProcessModel process = processes.pollFirst();
-			perform(process);
-			process.checkProgress();
-			if (!process.isDone()) {
-				processes.addLast(process);
-				System.out.println("Процесс " + process.getID() + " прерван");
-			} else {
-				System.out.println("Процесс " + process.getID() + " завершен");
+		while (!check()) {
+			ThreadModel thread = threads.pollFirst();
+			thread.perform(quant);
+			if (!thread.isDone()) {
+				threads.addLast(thread);
 			}
+			check();
 		}
 	}
 	
-	private void perform(ProcessModel process) {
-		System.out.println("Процесс " + process.getID() + " выполняется");
-		ArrayDeque<ThreadModel> threads = process.getThreads();
-		ThreadModel thread = threads.pollFirst();
-		thread.perform(quant);
-		threads.addLast(thread);
+	public boolean check() {
+		progress = 0;
+		for (ProcessModel process : processes) {
+			process.checkProgress();
+			progress += process.getProgress();
+		}
+		progress /= processes.size();
+		return progress >= 100;
 	}
 }

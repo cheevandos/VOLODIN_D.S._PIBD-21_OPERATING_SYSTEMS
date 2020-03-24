@@ -38,6 +38,10 @@ public class ProcessModel {
 		System.out.println("Процесс " + ID + " выполнен на " + progress + "%");
 	}
 	
+	public int getProgress() {
+		return progress;
+	}
+	
 	public boolean isDone() {
 		return progress >= 100;
 	}
