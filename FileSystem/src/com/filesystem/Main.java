@@ -36,7 +36,9 @@ public class Main {
 		fileNames = new HashMap<String, Integer>();
 	}
 	
-	public void writeFile(String fileName, char[] data) {
+	public void writeFile(File newFile) {
+		char[]data = newFile.getData();
+		String fileName = newFile.getName();
 		if (getFreeSpace() < data.length) {
 			System.out.println("Not enougn space on disk");
 		} else {
@@ -75,7 +77,7 @@ public class Main {
 		return -1;
 	}
 	
-	public char[] getFile(String fileName) {
+	public File getFile(String fileName) {
 		char[] data = new char[0];
 		Integer cluster = fileNames.get(fileName);
 		if (cluster == null) {
@@ -102,7 +104,7 @@ public class Main {
 			temp[i] = block[j];
 		}
 		data = temp;
-		return data;
+		return new File(fileName, data);
 	}
 	
 	public void deleteFile(String fileName) {

@@ -15,7 +15,8 @@ public class Program {
 			}
 			String[] splitted = input.split(" ");
 			if (splitted[0].equals("create") && splitted.length == 3) {
-				main.writeFile(splitted[1], splitted[2].toCharArray());
+				File newFile = new File(splitted[1], splitted[2].toCharArray());
+				main.writeFile(newFile);
 				continue;
 			}
 			if (splitted[0].equals("delete") && splitted.length == 2) {
@@ -23,7 +24,8 @@ public class Program {
 				continue;
 			}
 			if (splitted[0].equals("get") && splitted.length == 2) {
-				System.out.println(String.valueOf(main.getFile(splitted[1])));
+				File file = main.getFile(splitted[1]);
+				System.out.println(String.valueOf(file.getData()));
 				continue;
 			}
 			System.out.println("Wrong format!");
