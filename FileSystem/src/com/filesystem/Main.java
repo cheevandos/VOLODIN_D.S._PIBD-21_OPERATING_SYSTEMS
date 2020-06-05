@@ -2,7 +2,6 @@ package com.filesystem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 import static com.systeminfo.SystemInfo.*;
 
@@ -10,7 +9,7 @@ public class Main {
 
 	private ArrayList<FatRecord> fat;
 	private ArrayList<DiskCluster> dataRegion;
-	private HashMap<String, Integer> fileNames;
+	private ArrayList<File> fileList;
 	
 	public Main() {
 		init();
@@ -33,17 +32,16 @@ public class Main {
 			fat.add(i, new FatRecord());
 			dataRegion.add(i, new DiskCluster());
 		}
-		fileNames = new HashMap<String, Integer>();
+		fileList = new ArrayList<File>();
 	}
 	
-	public void writeFile(File newFile) {
-		char[]data = newFile.getData();
-		String fileName = newFile.getName();
+	public void writeFile(String fileName, char[] data) {
 		if (getFreeSpace() < data.length) {
 			System.out.println("Not enougn space on disk");
 		} else {
 			int fileStart = firstFreeCluster();
-			fileNames.put(fileName, fileStart);
+			File file = new File(fileName, fileStart);
+			fileList.add(file);
 			if (data.length > 0) {
 				write(data, fileStart);
 			} else {
@@ -77,9 +75,14 @@ public class Main {
 		return -1;
 	}
 	
-	public File getFile(String fileName) {
+	public char[] getFile(String fileName) {
 		char[] data = new char[0];
-		Integer cluster = fileNames.get(fileName);
+		Integer cluster = null;
+		for (File file : fileList) {
+			if (file.getName().equals(fileName)) {
+				cluster = file.getFirstBlock();
+			}
+		}
 		if (cluster == null) {
 			System.out.println("File not found");
 		}
@@ -104,11 +107,18 @@ public class Main {
 			temp[i] = block[j];
 		}
 		data = temp;
-		return new File(fileName, data);
+		return data;
 	}
 	
 	public void deleteFile(String fileName) {
-		Integer fileStart = fileNames.get(fileName);
+		Integer fileStart = null;
+		File toDelete = null;
+		for (File file : fileList) {
+			if (file.getName().equals(fileName)) {
+				fileStart = file.getFirstBlock();
+				toDelete = file;
+			}
+		}
 		if (fileStart == null) {
 			System.out.println("File not found");
 		}
@@ -117,7 +127,7 @@ public class Main {
 			fileStart = fat.get(fileStart).getNext();
 		}
 		fat.get(fileStart).setBusy(false);
-		fileNames.remove(fileName);
+		fileList.remove(toDelete);
 		System.out.println("File removed");
 	}
 }

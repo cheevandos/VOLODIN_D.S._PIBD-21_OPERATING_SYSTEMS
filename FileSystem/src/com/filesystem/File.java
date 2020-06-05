@@ -3,18 +3,18 @@ package com.filesystem;
 public class File {
 
 	private String fileName;
-	private char[] fileData;
+	private int firstBlock;
 	
-	public File(String name, char[] data) {
+	public File(String name, int first) {
 		fileName = name;
-		fileData = data;
+		firstBlock = first;
 	}
 	
 	public String getName() {
 		return fileName;
 	}
 	
-	public char[] getData() {
-		return fileData;
+	public int getFirstBlock() {
+		return firstBlock;
 	}
 }
